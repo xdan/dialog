@@ -1,0 +1,4 @@
+dialog
+======
+
+Simple dialog system
