@@ -228,4 +228,3 @@ function jWait(title, with_close) {
 		closeBtn: with_close ? true : false
 	});
 }
-jWait('Plesae wait', 1);
