@@ -17,7 +17,13 @@
 			closeFunction: 'fadeOut',
 			showFunction: 'fadeIn',
 			closeBtn: true,
-			shown: true
+			modal: true,
+			shown: true,
+			removeOnHide: true,
+			onBeforeShow: function() {},
+			onBeforeHide: function() {},
+			onAfterShow: function() {},
+			onAfterHide: function() {}
 		};
 
 	function makeButtons(buttons, tpl_button, buttons_box, dialog_box) {
@@ -44,7 +50,7 @@
 
 					(function(callback){
 						btn.click(function (event) {
-							if (callback.call(this, event)!==false) {
+							if (callback.call(dialog_box, event, this)!==false) {
 								dialog_box
 									.dialog('hide')
 							}
@@ -97,16 +103,32 @@
 		var	that = this,
 			dialog_box = that,
 			options = $.extend(true, {},default_options, $.isPlainObject(_options) ? _options : {}),
-			dialog,
+			dialog = dialog_box.find('.xdsoft_dialog'),
 			buttons_box = dialog_box.find('.xdsoft_dialog_buttons'),
 			event;
 
-		if (dialog_box.hasClass('xdsoft_dialog_overlay')) {
-			if ($.type(_options) === 'string') {
+		if (dialog_box.hasClass('xdsoft_dialog_overlay') && dialog_box.data('options')) {
+
+			options = dialog_box.data('options');
+
+			if ($.type(_options) === 'string' && _options.length) {
+				_options = _options.toLowerCase();
+				_options = _options.charAt(0).toUpperCase() + _options.slice(1);
 				event = $.Event('before'+_options+'.xdsoft');
-				dialog_box.trigger( event );
+				dialog_box.trigger(event);
+				if (options['onBefore'+_options] && $.isFunction(options['onBefore'+_options])) {
+					options['onBefore'+_options].call(that, options, _options);
+				}
 				if (!event.isDefaultPrevented()) {
-					switch (_options) {
+					switch (_options.toLowerCase()) {
+						case 'resize' :
+							if (dialog_box.is(':visible')) {
+								if (!options.modal) {
+									dialog_box.removeClass('xdsoft_modal');
+									dialog.css('margin-left', '-'+Math.round(dialog.width()/2)+'px');
+								}
+							}
+						break;
 						case 'ok' :
 							if (dialog_box.is(':visible')) {
 								buttons_box.find('.xdsoft_primary').trigger('click');
@@ -114,7 +136,11 @@
 						break;
 						case 'hide' :
 							if (dialog_box.is(':visible')) {
-								dialog_box.stop()[options.closeFunction]();
+								dialog_box.stop()[options.closeFunction](function(){
+									if (options.removeOnHide) {
+										dialog_box.remove();
+									}
+								});
 							}
 						break;
 						case 'show' :
@@ -132,6 +158,9 @@
 						break;
 					}
 					dialog_box.trigger('after'+_options+'.xdsoft');
+					if (options['onAfter'+_options] && $.isFunction(options['onAfter'+_options])) {
+						options['onAfter'+_options].call(that, options, _options);
+					}
 				}
 			} else {
 				makeTitle(options.title, dialog_box.find('.xdsoft_dialog_popup_title'), dialog_box, options)
@@ -141,7 +170,14 @@
 			return dialog_box;
 		}
 
-		dialog_box = $('<div class="xdsoft_dialog_overlay"></div>');
+		if ($.type(_options) === 'string') {
+			return this;
+		}
+
+		dialog_box = $('<div class="xdsoft_dialog_overlay xdsoft_modal"></div>');
+
+		dialog_box.data('options', options);
+
 		dialog = $(tpl_dialog);
 
 		dialog_box.on('mousedown.xdsoft', function (event) {
@@ -171,25 +207,45 @@
 		if (options.shown) {
 			dialog_box.dialog('show');
 		}
+		if (!options.modal) {
+			dialog_box.dialog('resize');
+		}
+
 		return dialog_box;
 	}
 	$(window)
+		.on('resize', function (event) {
+			$('.xdsoft_dialog_overlay:visible')
+				.dialog('resize')
+		})
 		.on('keydown', function (event) {
+			var dialogs;
 			switch(event.which) {
 				case 27 :
-					$('.xdsoft_dialog_overlay')
-						.dialog('hide')
-				break;
 				case 13 :
-					$('.xdsoft_dialog_overlay')
-						.dialog('ok')
-				break;
+					dialogs = $('.xdsoft_dialog_overlay:visible');
+					if (dialogs.length) {
+						event.stopPropagation();
+						event.preventDefault();
+					}
+			}
+			switch(event.which) {
+				case 27 :
+					if (dialogs.length) {
+						dialogs.dialog('hide')
+						return false;
+					}
+				case 13 :
+					if (dialogs.length) {
+						dialogs.dialog('ok')
+						return false;
+					}
 			}
 		});
 }(jQuery));
 
 function jAlert(msg,callback, title) {
-	jQuery(msg).dialog({
+	return jQuery('<div>'+msg+'</div>').dialog({
 		title: title,
 		buttons: {
 			'Ok': true
@@ -198,7 +254,7 @@ function jAlert(msg,callback, title) {
 }
 
 function jConfirm(msg,callback, title) {
-	jQuery(msg).dialog({
+	return jQuery('<div>'+msg+'</div>').dialog({
 		title: title,
 		buttons: {
 			'Ok': callback || function () {},
@@ -208,7 +264,7 @@ function jConfirm(msg,callback, title) {
 }
 
 function jPrompt(msg, default_value, callback, title) {
-    if ($.isFunction(default_value)) {
+    if (jQuery.isFunction(default_value)) {
 		callback = default_value;
 		default_value = false;
     }
@@ -220,11 +276,11 @@ function jPrompt(msg, default_value, callback, title) {
 		'</div>'+
 	'</div>';
 
-	jQuery(tpl).dialog({
+	return jQuery(tpl).dialog({
 		title: title,
 		buttons: {
 			'Ok': function (event) {
-				var val = jQuery(this).closest('.xdsoft_dialog').find('input.xdsoft_prompt').val();
+				var val = this.find('input.xdsoft_prompt').val();
 				(callback || function() {}).call(this, event, val);
 			},
 			'Cancel': true,
@@ -232,7 +288,7 @@ function jPrompt(msg, default_value, callback, title) {
 	});
 }
 function jWait(title, with_close) {
-	jQuery('<div class="xdsoft_waiter"></div>').dialog({
+	return jQuery('<div class="xdsoft_waiter"></div>').dialog({
 		title: title,
 		closeBtn: with_close ? true : false
 	});

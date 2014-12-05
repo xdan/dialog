@@ -25,7 +25,7 @@
     display: none;
 }
 
-.xdsoft_dialog_overlay:not(.xdsoft_modal){
+.xdsoft_dialog_overlay{
 	 left: 50%;
 	 width: 0;
 	 overflow: visible;
