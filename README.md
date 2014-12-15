@@ -1,6 +1,6 @@
-dialog
+Dialog by XDSoft.net
 ======
-[Documentation][doc]
+[Documentation&Demo][doc]
 
 Simple dialog system
 
