@@ -18,6 +18,6 @@ Wait dialog
 
 Youtube player
 
-![ScreenShot](https://raw.github.com/xdan/dialog/master/screen/3.png)
+![ScreenShot](https://raw.github.com/xdan/dialog/master/screen/4.png)
 
 [doc]: http://xdsoft.net/jqplugins/dialog/
