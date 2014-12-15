@@ -1,5 +1,5 @@
 /**
- * @preserve jQuery Dialog plugin v1.0.0
+ * @preserve jQuery Dialog plugin v1.0.1
  * @homepage http://xdsoft.net/jqplugins/dialog/
  * (c) 2014, Chupurnov Valeriy <chupurnov@gmail.com>
  */
@@ -136,7 +136,7 @@
 		outer.parentNode.removeChild(outer);
 		return widthNoScroll - widthWithScroll;
 	}
-	$.fn[plugin_name] = function (_options, second) {
+	$.fn[plugin_name] = function (_options, second, third) {
 		var	that = this,
 			dialog_box = that,
 			options = $.extend(true, {}, default_options, $.isPlainObject(_options) ? _options : {}),
@@ -172,6 +172,10 @@
 							if (second !== 'enter' || options.clickDefaultButtonOnEnter) {
 								buttons_box.find('.xdsoft_primary').trigger('click');
 							}
+							if (second === 'enter' && options.clickDefaultButtonOnEnter && third) {
+								third.stopPropagation();
+								third.preventDefault();
+							}
 						}
 						break;
 					case 'hide':
@@ -194,6 +198,10 @@
 										clearInterval(dialog_box.data('resize_interval'));
 									}
 								});
+								if (second === 'esc' && options.closeOnEsc && third) {
+									third.stopPropagation();
+									third.preventDefault();
+								}
 							}
 						}
 						break;
@@ -311,23 +319,17 @@
 			case 27:
 			case 13:
 				dialogs = $('.xdsoft_dialog_overlay:visible');
-				if (dialogs.length) {
-					event.stopPropagation();
-					event.preventDefault();
-				}
 				break;
 			}
 			switch (event.which) {
 			case 27:
 				if (dialogs.length) {
-					dialogs[plugin_name]('hide', 'esc');
-					return false;
+					dialogs[plugin_name]('hide', 'esc', event);
 				}
 				break;
 			case 13:
 				if (dialogs.length) {
-					dialogs[plugin_name]('ok', 'enter');
-					return false;
+					dialogs[plugin_name]('ok', 'enter', event);
 				}
 				break;
 			}
