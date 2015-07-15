@@ -1,7 +1,7 @@
 /**
  * @preserve jQuery Dialog plugin v1.0.3
  * @homepage http://xdsoft.net/jqplugins/dialog/
- * (c) 2014, Chupurnov Valeriy <chupurnov@gmail.com>
+ * (c) 2015, Chupurnov Valeriy <chupurnov@gmail.com>
  */
 /*global jQuery,window,document,clearInterval,setInterval*/
 (function ($) {
