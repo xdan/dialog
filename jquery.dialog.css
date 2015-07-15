@@ -6,13 +6,6 @@
 .xdsoft_dialog_overlay,.xdsoft_dialog_overlay *{
 	-moz-box-sizing: border-box;
 	box-sizing: border-box;
-	line-height: 1;
-	margin: 0;
-	padding: 0;
-	border: 0;
-	font-size: 100%;
-	font: inherit;
-	vertical-align: baseline;
 }
 .xdsoft_overlay_lock { 
 overflow: visible !important;

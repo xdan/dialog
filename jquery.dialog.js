@@ -1,5 +1,5 @@
 /**
- * @preserve jQuery Dialog plugin v1.0.1
+ * @preserve jQuery Dialog plugin v1.0.3
  * @homepage http://xdsoft.net/jqplugins/dialog/
  * (c) 2014, Chupurnov Valeriy <chupurnov@gmail.com>
  */
@@ -391,7 +391,7 @@
 		return $('<div class="xdsoft_waiter"></div>')[plugin_name]({
 			title: title,
 			closeBtn: with_close ? true : false,
-			closeOnClickOutside: not_close_on_click ? false : true,
+			closeOnClickOutside: not_close_on_click ? false : true
 		});
 	};
 }(jQuery));
